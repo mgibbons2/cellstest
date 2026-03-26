@@ -342,19 +342,19 @@ body::after {
 
 /* Cell color states */
 .cell[data-color="0"] {
-  background: radial-gradient(135deg at 30% 30%, #1afff4, #00a89a);
-  border-color: rgba(0,255,224,0.35);
-  box-shadow: 0 0 10px rgba(0,255,224,0.18), inset 0 1px 0 rgba(255,255,255,0.15);
+  background: linear-gradient(145deg, #00fff0, #00c8b8);
+  border-color: rgba(0,255,224,0.7);
+  box-shadow: 0 0 16px rgba(0,255,224,0.4), inset 0 1px 0 rgba(255,255,255,0.3), inset 0 -2px 0 rgba(0,0,0,0.2);
 }
 .cell[data-color="1"] {
-  background: radial-gradient(135deg at 30% 30%, #d280ff, #7b1fcc);
-  border-color: rgba(185,79,255,0.35);
-  box-shadow: 0 0 10px rgba(185,79,255,0.18), inset 0 1px 0 rgba(255,255,255,0.15);
+  background: linear-gradient(145deg, #cc55ff, #8800cc);
+  border-color: rgba(185,79,255,0.7);
+  box-shadow: 0 0 16px rgba(185,79,255,0.4), inset 0 1px 0 rgba(255,255,255,0.3), inset 0 -2px 0 rgba(0,0,0,0.2);
 }
 .cell[data-color="2"] {
-  background: radial-gradient(135deg at 30% 30%, #ffaa55, #cc3a00);
-  border-color: rgba(255,107,53,0.35);
-  box-shadow: 0 0 10px rgba(255,107,53,0.18), inset 0 1px 0 rgba(255,255,255,0.15);
+  background: linear-gradient(145deg, #ff8844, #dd3300);
+  border-color: rgba(255,107,53,0.7);
+  box-shadow: 0 0 16px rgba(255,107,53,0.4), inset 0 1px 0 rgba(255,255,255,0.3), inset 0 -2px 0 rgba(0,0,0,0.2);
 }
 
 @keyframes cellFlip {
