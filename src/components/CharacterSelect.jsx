@@ -1,14 +1,40 @@
-import { useState } from 'react'
+import { useState, useCallback, useRef } from 'react'
 import { CHARACTERS } from '../utils/characters'
 
+// Detect if the primary input is touch so we can skip mouse hover entirely
+function isTouchDevice() {
+  return window.matchMedia('(hover: none)').matches
+}
+
 export default function CharacterSelect({ onSelect, onBack }) {
-  const [active, setActive] = useState(CHARACTERS[0])
-  const [chosen, setChosen] = useState(null)
+  const [active, setActive]   = useState(CHARACTERS[0])
+  const [chosen, setChosen]   = useState(null)
+  // Track whether the last interaction was a touch so we suppress the
+  // synthetic mouseenter that mobile browsers fire after touchend
+  const suppressHover = useRef(false)
 
   function selectChar(char) {
     setActive(char)
     setChosen(char)
   }
+
+  function handleTouchStart() {
+    // Any touch interaction — block the upcoming synthetic mouse events
+    suppressHover.current = true
+  }
+
+  const handleMouseEnter = useCallback((char) => {
+    if (suppressHover.current || isTouchDevice()) {
+      suppressHover.current = false
+      return
+    }
+    setActive(char)
+  }, [])
+
+  const handleMouseLeave = useCallback(() => {
+    if (suppressHover.current || isTouchDevice()) return
+    setActive(prev => chosen ?? CHARACTERS[0])
+  }, [chosen])
 
   function handleConfirm() {
     if (chosen) onSelect(chosen)
@@ -17,7 +43,7 @@ export default function CharacterSelect({ onSelect, onBack }) {
   const display = active
 
   return (
-    <div className="cs-root">
+    <div className="cs-root" onTouchStart={handleTouchStart}>
 
       {/* ── Mobile top bar ── */}
       <div className="cs-topbar">
@@ -41,7 +67,9 @@ export default function CharacterSelect({ onSelect, onBack }) {
             >
               <span className="cs-chip-portrait">{char.portrait}</span>
               <span className="cs-chip-name" style={{ color: char.color }}>{char.name}</span>
-              {chosen?.id === char.id && <span className="cs-chip-check" style={{ color: char.color }}>✓</span>}
+              {chosen?.id === char.id && (
+                <span className="cs-chip-check" style={{ color: char.color }}>✓</span>
+              )}
             </button>
           ))}
         </div>
@@ -59,8 +87,8 @@ export default function CharacterSelect({ onSelect, onBack }) {
               key={char.id}
               className={`cs-card ${chosen?.id === char.id ? 'chosen' : ''}`}
               style={{ '--char-color': char.color, '--char-bg': char.accentBg }}
-              onMouseEnter={() => setActive(char)}
-              onMouseLeave={() => setActive(chosen ?? CHARACTERS[0])}
+              onMouseEnter={() => handleMouseEnter(char)}
+              onMouseLeave={handleMouseLeave}
               onClick={() => selectChar(char)}
             >
               <span className="cs-card-portrait">{char.portrait}</span>
@@ -75,7 +103,10 @@ export default function CharacterSelect({ onSelect, onBack }) {
       </div>
 
       {/* ── Detail panel ── */}
-      <div className="cs-detail" style={{ '--char-color': display.color, '--char-bg': display.accentBg }}>
+      <div
+        className="cs-detail"
+        style={{ '--char-color': display.color, '--char-bg': display.accentBg }}
+      >
         <div className="cs-glow-blob" style={{ background: display.color }} />
 
         <div className="cs-detail-inner">
