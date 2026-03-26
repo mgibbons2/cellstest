@@ -357,12 +357,58 @@ body::after {
   box-shadow: 0 0 16px rgba(255,107,53,0.4), inset 0 1px 0 rgba(255,255,255,0.3), inset 0 -2px 0 rgba(0,0,0,0.2);
 }
 
-@keyframes cellFlip {
-  0%  { transform: scale(1); }
-  40% { transform: scale(1.18) rotate(5deg); }
-  100%{ transform: scale(1); }
+/* ── Cell color-change animations ──────────────────────────────
+   Three stages:
+   1. cellPop    — the cell squishes down then springs up (click feedback)
+   2. cellFlash  — a white burst fades over the cell as color switches
+   3. cellSettle — slight overshoot bounce as new color settles in
+   All three run simultaneously on .flip, timed to feel snappy.
+─────────────────────────────────────────────────────────────── */
+
+@keyframes cellPop {
+  0%   { transform: scale(1); }
+  20%  { transform: scale(0.82) rotate(-4deg); }
+  55%  { transform: scale(1.22) rotate(3deg); }
+  75%  { transform: scale(0.95) rotate(-1deg); }
+  100% { transform: scale(1) rotate(0deg); }
 }
-.cell.flip { animation: cellFlip 0.22s ease; }
+
+@keyframes cellFlashOverlay {
+  0%   { opacity: 0; }
+  25%  { opacity: 0.55; }
+  100% { opacity: 0; }
+}
+
+@keyframes cellGlow {
+  0%   { box-shadow: 0 0 16px rgba(255,255,255,0), var(--cell-shadow); }
+  35%  { box-shadow: 0 0 28px rgba(255,255,255,0.7), var(--cell-shadow); }
+  100% { box-shadow: 0 0 16px rgba(255,255,255,0), var(--cell-shadow); }
+}
+
+/* Base cell-shadow variables so glow animation knows the resting shadow */
+.cell[data-color="0"] { --cell-shadow: 0 0 16px rgba(0,255,224,0.4); }
+.cell[data-color="1"] { --cell-shadow: 0 0 16px rgba(185,79,255,0.4); }
+.cell[data-color="2"] { --cell-shadow: 0 0 16px rgba(255,107,53,0.4); }
+
+/* The flash overlay lives on ::after (we repurpose the hover overlay) */
+.cell.flip::after {
+  opacity: 0;
+  animation: cellFlashOverlay 0.35s ease forwards;
+  background: rgba(255,255,255,0.6) !important;
+}
+
+.cell.flip {
+  animation: cellPop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards,
+             cellGlow 0.35s ease forwards;
+}
+
+/* Stagger delays for the ripple effect — cells further from center
+   get progressively longer delays. Applied via data-flip-delay attr
+   set by the Grid component. */
+.cell[data-flip-delay="0"] { animation-delay: 0ms; }
+.cell[data-flip-delay="1"] { animation-delay: 35ms; }
+.cell[data-flip-delay="2"] { animation-delay: 70ms; }
+.cell[data-flip-delay="3"] { animation-delay: 105ms; }
 
 /* ══ POWERUP BAR ══ */
 .powerup-section {

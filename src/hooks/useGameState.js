@@ -461,6 +461,7 @@ export function useGameState({ character, onWin }) {
     puCollected:    g().puCollected,
     puUsed:         g().puUsed,
     flipping:       g().flipping,
+    lastClickIdx:   g().lastClickIdx,
     previewCells,
     liveMultiplier: calcLiveMultiplier(g().clicks),
     hint:           g().hint,
