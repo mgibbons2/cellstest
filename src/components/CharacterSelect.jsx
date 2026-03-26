@@ -2,33 +2,66 @@ import { useState } from 'react'
 import { CHARACTERS } from '../utils/characters'
 
 export default function CharacterSelect({ onSelect, onBack }) {
-  const [hovered, setHovered] = useState(null)
-  const [chosen, setChosen]   = useState(null)
+  const [active, setActive] = useState(CHARACTERS[0])
+  const [chosen, setChosen] = useState(null)
 
-  const active = hovered ?? chosen ?? CHARACTERS[0]
+  function selectChar(char) {
+    setActive(char)
+    setChosen(char)
+  }
 
   function handleConfirm() {
     if (chosen) onSelect(chosen)
   }
 
+  const display = active
+
   return (
     <div className="cs-root">
-      {/* ── Left panel: character roster ── */}
+
+      {/* ── Mobile top bar ── */}
+      <div className="cs-topbar">
+        <button className="cs-back" onClick={onBack}>← Back</button>
+        <span className="cs-roster-label">Select Operative</span>
+      </div>
+
+      {/* ── Mobile: horizontal chip strip ── */}
+      <div className="cs-chips-wrap">
+        <div className="cs-chips">
+          {CHARACTERS.map(char => (
+            <button
+              key={char.id}
+              className={[
+                'cs-chip',
+                active?.id === char.id ? 'active' : '',
+                chosen?.id === char.id ? 'chosen-chip' : '',
+              ].filter(Boolean).join(' ')}
+              style={{ '--char-color': char.color, '--char-bg': char.accentBg }}
+              onClick={() => selectChar(char)}
+            >
+              <span className="cs-chip-portrait">{char.portrait}</span>
+              <span className="cs-chip-name" style={{ color: char.color }}>{char.name}</span>
+              {chosen?.id === char.id && <span className="cs-chip-check" style={{ color: char.color }}>✓</span>}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* ── Desktop: sidebar roster ── */}
       <div className="cs-roster">
         <div className="cs-roster-header">
           <button className="cs-back" onClick={onBack}>← Back</button>
           <span className="cs-roster-label">Select Operative</span>
         </div>
-
         <div className="cs-cards">
           {CHARACTERS.map(char => (
             <button
               key={char.id}
               className={`cs-card ${chosen?.id === char.id ? 'chosen' : ''}`}
               style={{ '--char-color': char.color, '--char-bg': char.accentBg }}
-              onMouseEnter={() => setHovered(char)}
-              onMouseLeave={() => setHovered(null)}
-              onClick={() => setChosen(char)}
+              onMouseEnter={() => setActive(char)}
+              onMouseLeave={() => setActive(chosen ?? CHARACTERS[0])}
+              onClick={() => selectChar(char)}
             >
               <span className="cs-card-portrait">{char.portrait}</span>
               <div className="cs-card-info">
@@ -41,61 +74,55 @@ export default function CharacterSelect({ onSelect, onBack }) {
         </div>
       </div>
 
-      {/* ── Right panel: character detail ── */}
-      <div className="cs-detail" style={{ '--char-color': active.color, '--char-bg': active.accentBg }}>
-        {/* Decorative glow blob */}
-        <div className="cs-glow-blob" style={{ background: active.color }} />
+      {/* ── Detail panel ── */}
+      <div className="cs-detail" style={{ '--char-color': display.color, '--char-bg': display.accentBg }}>
+        <div className="cs-glow-blob" style={{ background: display.color }} />
 
         <div className="cs-detail-inner">
-          {/* Portrait + name */}
+
           <div className="cs-portrait-wrap">
-            <div className="cs-portrait-ring" style={{ borderColor: active.color }}>
-              <span className="cs-portrait-emoji">{active.portrait}</span>
+            <div className="cs-portrait-ring" style={{ borderColor: display.color }}>
+              <span className="cs-portrait-emoji">{display.portrait}</span>
             </div>
           </div>
 
-          <div className="cs-detail-name" style={{ color: active.color }}>{active.name}</div>
-          <div className="cs-detail-title">{active.title}</div>
-          <div className="cs-detail-pronouns">{active.pronouns}</div>
+          <div className="cs-detail-name" style={{ color: display.color }}>{display.name}</div>
+          <div className="cs-detail-title">{display.title}</div>
+          <div className="cs-detail-pronouns">{display.pronouns}</div>
 
           <div className="cs-tagline">
-            <span className="cs-tagline-quote">{active.tagline}</span>
+            <span className="cs-tagline-quote">{display.tagline}</span>
           </div>
 
-          <p className="cs-lore">{active.lore}</p>
+          <p className="cs-lore">{display.lore}</p>
 
-          {/* Divider */}
-          <div className="cs-ability-divider">
-            <span>ABILITIES</span>
-          </div>
+          <div className="cs-ability-divider"><span>ABILITIES</span></div>
 
-          {/* Abilities */}
           <div className="cs-abilities">
-            {active.abilities.map((ab, i) => (
+            {display.abilities.map((ab, i) => (
               <div key={ab.id} className="cs-ability">
                 <div className="cs-ability-header">
-                  <span className="cs-ability-num" style={{ color: active.color }}>0{i + 1}</span>
+                  <span className="cs-ability-num" style={{ color: display.color }}>0{i + 1}</span>
                   <span className="cs-ability-icon">{ab.icon}</span>
-                  <span className="cs-ability-name" style={{ color: active.color }}>{ab.name}</span>
+                  <span className="cs-ability-name" style={{ color: display.color }}>{ab.name}</span>
                 </div>
                 <p className="cs-ability-desc">{ab.desc}</p>
               </div>
             ))}
           </div>
 
-          {/* Confirm button */}
           <button
             className={`cs-confirm ${chosen ? 'ready' : ''}`}
-            style={chosen ? { borderColor: active.color, color: active.color } : {}}
+            style={chosen ? { borderColor: display.color, color: display.color } : {}}
             onClick={handleConfirm}
             disabled={!chosen}
           >
-            {chosen
-              ? `Deploy ${chosen.name} →`
-              : 'Choose an Operative'}
+            {chosen ? `Deploy ${chosen.name} →` : 'Choose an Operative'}
           </button>
+
         </div>
       </div>
+
     </div>
   )
 }
