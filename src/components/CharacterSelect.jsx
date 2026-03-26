@@ -5,35 +5,9 @@ export default function CharacterSelect({ onSelect, onBack }) {
   const [active, setActive] = useState(CHARACTERS[0])
   const [chosen, setChosen] = useState(null)
 
-  // On touch devices (coarse pointer = finger), hover preview is disabled.
-  // We only use click/tap to both preview AND select.
-  const isTouch = window.matchMedia('(pointer: coarse)').matches
-
-  function handleCardInteract(char) {
-    // On touch: first tap previews, second tap on same char confirms
-    // On mouse: click always selects
-    if (isTouch) {
-      if (active?.id === char.id) {
-        // Already previewing this one — confirm it
-        setChosen(char)
-      } else {
-        // First tap — just preview
-        setActive(char)
-      }
-    } else {
-      setActive(char)
-      setChosen(char)
-    }
-  }
-
-  function handleMouseEnter(char) {
-    if (isTouch) return
+  function selectChar(char) {
     setActive(char)
-  }
-
-  function handleMouseLeave() {
-    if (isTouch) return
-    setActive(chosen ?? CHARACTERS[0])
+    setChosen(char)
   }
 
   function handleConfirm() {
@@ -63,7 +37,7 @@ export default function CharacterSelect({ onSelect, onBack }) {
                 chosen?.id === char.id ? 'chosen-chip' : '',
               ].filter(Boolean).join(' ')}
               style={{ '--char-color': char.color, '--char-bg': char.accentBg }}
-              onClick={() => handleCardInteract(char)}
+              onClick={() => selectChar(char)}
             >
               <span className="cs-chip-portrait">{char.portrait}</span>
               <span className="cs-chip-name" style={{ color: char.color }}>{char.name}</span>
@@ -87,9 +61,9 @@ export default function CharacterSelect({ onSelect, onBack }) {
               key={char.id}
               className={`cs-card ${chosen?.id === char.id ? 'chosen' : ''}`}
               style={{ '--char-color': char.color, '--char-bg': char.accentBg }}
-              onMouseEnter={() => handleMouseEnter(char)}
-              onMouseLeave={handleMouseLeave}
-              onClick={() => handleCardInteract(char)}
+              onMouseEnter={() => setActive(char)}
+              onMouseLeave={() => setActive(chosen ?? CHARACTERS[0])}
+              onClick={() => selectChar(char)}
             >
               <span className="cs-card-portrait">{char.portrait}</span>
               <div className="cs-card-info">
@@ -142,25 +116,13 @@ export default function CharacterSelect({ onSelect, onBack }) {
             ))}
           </div>
 
-          {/* On touch: show tap hint if previewing but not yet confirmed */}
-          {isTouch && active && !chosen && (
-            <p className="cs-tap-hint" style={{ color: display.color }}>
-              Tap again to select {display.name}
-            </p>
-          )}
-          {isTouch && active && chosen?.id !== active.id && (
-            <p className="cs-tap-hint" style={{ color: display.color }}>
-              Tap again to select {display.name}
-            </p>
-          )}
-
           <button
             className={`cs-confirm ${chosen ? 'ready' : ''}`}
             style={chosen ? { borderColor: display.color, color: display.color } : {}}
             onClick={handleConfirm}
             disabled={!chosen}
           >
-            {chosen ? `Deploy ${chosen.name} →` : 'Tap a character to preview'}
+            {chosen ? `Deploy ${chosen.name} →` : 'Choose an Operative'}
           </button>
 
         </div>

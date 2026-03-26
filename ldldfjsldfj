@@ -1,0 +1,29 @@
+[33mcommit 16def72a51a678e4fa1fa5a7d10b8948c51c8d2c[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m
+Author: Michael Gibbons <michaelgibs123@gmail.com>
+Date:   Thu Mar 26 15:00:38 2026 -0400
+
+    fixed now maybe
+
+[33mcommit 09b7491f4a2bffe4b0d27b86a154d52784b19f75[m
+Author: Michael Gibbons <michaelgibs123@gmail.com>
+Date:   Thu Mar 26 14:56:06 2026 -0400
+
+    fixed hover bug on mobile
+
+[33mcommit 58346456ebb021952b17bccd2c89b470186d8e4f[m
+Author: Michael Gibbons <michaelgibs123@gmail.com>
+Date:   Thu Mar 26 14:52:03 2026 -0400
+
+    fixed mobile character select
+
+[33mcommit 8c51ea273cf7f0266e858be1d929c74cf078e777[m
+Author: Michael Gibbons <michaelgibs123@gmail.com>
+Date:   Thu Mar 26 14:30:56 2026 -0400
+
+    deploy fix
+
+[33mcommit cdfa64a82bdf82fc5b1785a433a9c5c27cba41db[m
+Author: Michael Gibbons <michaelgibs123@gmail.com>
+Date:   Thu Mar 26 14:14:37 2026 -0400
+
+    initial commit
