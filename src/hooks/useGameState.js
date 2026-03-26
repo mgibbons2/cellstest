@@ -71,7 +71,7 @@ export function useGameState({ character, onWin }) {
     setTimeout(() => {
       indices.forEach(i => g().flipping.delete(i))
       rerender()
-    }, 260)
+    }, 750)
   }
 
   function checkAndCollectPowerups() {
