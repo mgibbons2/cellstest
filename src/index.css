@@ -295,13 +295,16 @@ body::after {
   transition: opacity 0.15s;
   pointer-events: none;
 }
-.cell:hover::after { opacity: 1; }
-.cell:hover { transform: scale(1.09); }
 .cell:active { transform: scale(0.95); }
 
-.grid-container.targeting .cell:hover {
-  outline: 2px solid rgba(255,255,255,0.65);
-  transform: scale(1.1);
+/* Only apply hover effects on real pointer devices, not touch */
+@media (hover: hover) {
+  .cell:hover::after { opacity: 1; }
+  .cell:hover { transform: scale(1.09); }
+  .grid-container.targeting .cell:hover {
+    outline: 2px solid rgba(255,255,255,0.65);
+    transform: scale(1.1);
+  }
 }
 .cell.preview-target {
   outline: 2px solid rgba(255,255,255,0.5);
