@@ -1,40 +1,40 @@
-import { useState, useCallback, useRef } from 'react'
+import { useState } from 'react'
 import { CHARACTERS } from '../utils/characters'
 
-// Detect if the primary input is touch so we can skip mouse hover entirely
-function isTouchDevice() {
-  return window.matchMedia('(hover: none)').matches
-}
-
 export default function CharacterSelect({ onSelect, onBack }) {
-  const [active, setActive]   = useState(CHARACTERS[0])
-  const [chosen, setChosen]   = useState(null)
-  // Track whether the last interaction was a touch so we suppress the
-  // synthetic mouseenter that mobile browsers fire after touchend
-  const suppressHover = useRef(false)
+  const [active, setActive] = useState(CHARACTERS[0])
+  const [chosen, setChosen] = useState(null)
 
-  function selectChar(char) {
-    setActive(char)
-    setChosen(char)
-  }
+  // On touch devices (coarse pointer = finger), hover preview is disabled.
+  // We only use click/tap to both preview AND select.
+  const isTouch = window.matchMedia('(pointer: coarse)').matches
 
-  function handleTouchStart() {
-    // Any touch interaction — block the upcoming synthetic mouse events
-    suppressHover.current = true
-  }
-
-  const handleMouseEnter = useCallback((char) => {
-    if (suppressHover.current || isTouchDevice()) {
-      suppressHover.current = false
-      return
+  function handleCardInteract(char) {
+    // On touch: first tap previews, second tap on same char confirms
+    // On mouse: click always selects
+    if (isTouch) {
+      if (active?.id === char.id) {
+        // Already previewing this one — confirm it
+        setChosen(char)
+      } else {
+        // First tap — just preview
+        setActive(char)
+      }
+    } else {
+      setActive(char)
+      setChosen(char)
     }
-    setActive(char)
-  }, [])
+  }
 
-  const handleMouseLeave = useCallback(() => {
-    if (suppressHover.current || isTouchDevice()) return
-    setActive(prev => chosen ?? CHARACTERS[0])
-  }, [chosen])
+  function handleMouseEnter(char) {
+    if (isTouch) return
+    setActive(char)
+  }
+
+  function handleMouseLeave() {
+    if (isTouch) return
+    setActive(chosen ?? CHARACTERS[0])
+  }
 
   function handleConfirm() {
     if (chosen) onSelect(chosen)
@@ -43,7 +43,7 @@ export default function CharacterSelect({ onSelect, onBack }) {
   const display = active
 
   return (
-    <div className="cs-root" onTouchStart={handleTouchStart}>
+    <div className="cs-root">
 
       {/* ── Mobile top bar ── */}
       <div className="cs-topbar">
@@ -63,7 +63,7 @@ export default function CharacterSelect({ onSelect, onBack }) {
                 chosen?.id === char.id ? 'chosen-chip' : '',
               ].filter(Boolean).join(' ')}
               style={{ '--char-color': char.color, '--char-bg': char.accentBg }}
-              onClick={() => selectChar(char)}
+              onClick={() => handleCardInteract(char)}
             >
               <span className="cs-chip-portrait">{char.portrait}</span>
               <span className="cs-chip-name" style={{ color: char.color }}>{char.name}</span>
@@ -89,7 +89,7 @@ export default function CharacterSelect({ onSelect, onBack }) {
               style={{ '--char-color': char.color, '--char-bg': char.accentBg }}
               onMouseEnter={() => handleMouseEnter(char)}
               onMouseLeave={handleMouseLeave}
-              onClick={() => selectChar(char)}
+              onClick={() => handleCardInteract(char)}
             >
               <span className="cs-card-portrait">{char.portrait}</span>
               <div className="cs-card-info">
@@ -142,13 +142,25 @@ export default function CharacterSelect({ onSelect, onBack }) {
             ))}
           </div>
 
+          {/* On touch: show tap hint if previewing but not yet confirmed */}
+          {isTouch && active && !chosen && (
+            <p className="cs-tap-hint" style={{ color: display.color }}>
+              Tap again to select {display.name}
+            </p>
+          )}
+          {isTouch && active && chosen?.id !== active.id && (
+            <p className="cs-tap-hint" style={{ color: display.color }}>
+              Tap again to select {display.name}
+            </p>
+          )}
+
           <button
             className={`cs-confirm ${chosen ? 'ready' : ''}`}
             style={chosen ? { borderColor: display.color, color: display.color } : {}}
             onClick={handleConfirm}
             disabled={!chosen}
           >
-            {chosen ? `Deploy ${chosen.name} →` : 'Choose an Operative'}
+            {chosen ? `Deploy ${chosen.name} →` : 'Tap a character to preview'}
           </button>
 
         </div>
